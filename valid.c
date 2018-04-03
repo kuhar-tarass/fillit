@@ -6,7 +6,7 @@
 /*   By: tkuhar <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/02 17:28:29 by tkuhar            #+#    #+#             */
-/*   Updated: 2018/04/02 20:18:05 by tkuhar           ###   ########.fr       */
+/*   Updated: 2018/04/03 10:02:00 by tkuhar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,8 +33,11 @@ int *key(int *map)
 {
 	int i;
 	int b;
-	
+	int max;
+
 	i = -1;
+	b =0;
+	max = 0;
 	while (++i < 16)
 	{
 		b += map[i];
@@ -42,8 +45,9 @@ int *key(int *map)
 		map[i] += (i - 1 > 0 && map[i] > 0) ? map[i - 1] : 0;
 		map[i] += (i + 4 < 16 && map[i] > 0) ? map[i + 4] : 0;
 		map[i] += (i + 1 < 16 && map[i] > 0) ? map[i + 1] : 0;
+		max = map[i] > max ? map[i] : max;
 	}
-	if (b != 4)
+	if (b != 4 || max < 3)
 		return (0);
 	b = 16;
 	while (b--)
