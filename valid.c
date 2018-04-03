@@ -113,18 +113,19 @@ int	checkvalid_input(int fd, int *map, t_elem **elem, char *s)
 		i = 0;
 		j = 20;
 		while(buf[4] == '\n' && buf[9] == '\n' && buf[14] == '\n' &&
-			buf[19] == '\n' && buf[20] == '\n' && j--)
-			if (buf[20 - j] == '.' || buf[20 - j] == '#')
-				map[i++] = (buf[20 - j] == '.') ? 0 : 1;
-			else if (buf[20 - j] != '\n')
+			buf[19] == '\n' && j--)
+			if (buf[19 - j] == '.' || buf[19 - j] == '#')
+				map[i++] = (buf[19 - j] == '.') ? 0 : 1;
+			else if(buf[19 -j] != '\n')
 				break;
 		if (j != -1)
 			break ;
 		if ((k = malloc(sizeof(int) * 8)))
 			ft_elempush_back(elem, cutkey(key(map,k)));
+		if (!(read(fd, buf, 1)))
+			return (0);
 	}
-	printf("!!!!");
-	//write(1,buf, 21);
+
 	return ((buf[0] == '\0') ? 0 : 1);
 }
 
@@ -143,14 +144,14 @@ int	main(int argc, char **argv)
 //	int i  = 2;
 	if (checkvalid_input(fd, map, &elem, argv[1]))
 		printf ("§§§§§§§\n");
-	// t_elem *tmp = elem;
-	// while (tmp)
-	// {
-	// 	b = 0;
-	// 	while (b < 8)
-	// 		printf ("%i %i	", tmp->pos[b++], tmp->pos[b++]);
-	// 	printf("\n");
-	// 	tmp = tmp->next;
-	// }
+	t_elem *tmp = elem;
+	while (tmp)
+	{
+		b = 0;
+		while (b < 8)
+			printf ("%i %i	", tmp->pos[b++], tmp->pos[b++]);
+		printf("\n");
+		tmp = tmp->next;
+	}
 	return (0);
 }
