@@ -21,7 +21,7 @@ typedef struct	s_elem
 {
 	struct s_elem	*next;
 	struct s_elem	*prev;
-	int		pos[8];
+	int		*pos;
 }				t_elem;
 
 #endif
