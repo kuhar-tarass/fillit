@@ -6,7 +6,7 @@
 /*   By: tkuhar <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/02 17:28:29 by tkuhar            #+#    #+#             */
-/*   Updated: 2018/04/03 10:02:00 by tkuhar           ###   ########.fr       */
+/*   Updated: 2018/04/04 13:04:48 by tkuhar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,13 +102,13 @@ int *key(int *map, int *k)
 
 int	checkvalid_input(int fd, int *map, t_elem **elem, char *s)
 {
-	char buf[21];
+	char buf[20];
 	int i;
 	int j;
 	int *k;
 
 	fd = open(s, O_RDONLY);
-	while (read (fd, buf, 20))
+	while (read (fd, buf, 20) == 20)
 	{
 		i = 0;
 		j = 20;
@@ -118,15 +118,15 @@ int	checkvalid_input(int fd, int *map, t_elem **elem, char *s)
 				map[i++] = (buf[19 - j] == '.') ? 0 : 1;
 			else if(buf[19 -j] != '\n')
 				break;
-		if (j != -1)
+			if (j != -1)
 			break ;
 		if ((k = malloc(sizeof(int) * 8)))
 			ft_elempush_back(elem, cutkey(key(map,k)));
 		if (!(read(fd, buf, 1)))
 			return (0);
+		if (buf[0] != '\n')
+			return(1) ;
 	}
-
-	return ((buf[0] == '\0') ? 0 : 1);
 }
 
 int	main(int argc, char **argv)
@@ -141,9 +141,8 @@ int	main(int argc, char **argv)
 	if (!(map = malloc(sizeof(int) * 16)))
 		return (0);
 	elem = 0;
-//	int i  = 2;
 	if (checkvalid_input(fd, map, &elem, argv[1]))
-		printf ("§§§§§§§\n");
+		printf ("§§§§§§§		ERROR		§§§§§§§\n");
 	t_elem *tmp = elem;
 	while (tmp)
 	{
