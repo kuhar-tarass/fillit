@@ -6,7 +6,7 @@
 /*   By: tkuhar <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/02 17:28:29 by tkuhar            #+#    #+#             */
-/*   Updated: 2018/04/04 13:04:48 by tkuhar           ###   ########.fr       */
+/*   Updated: 2018/04/04 13:29:50 by tkuhar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -100,13 +100,15 @@ int *key(int *map, int *k)
 	return (k - 8);
 }
 
-int	checkvalid_input(int fd, int *map, t_elem **elem, char *s)
+int	checkvalid_input(int *map, t_elem **elem, char *s)
 {
 	char buf[20];
 	int i;
 	int j;
 	int *k;
+	int fd;
 
+	printf("@@@@\n");
 	fd = open(s, O_RDONLY);
 	while (read (fd, buf, 20) == 20)
 	{
@@ -117,9 +119,7 @@ int	checkvalid_input(int fd, int *map, t_elem **elem, char *s)
 			if (buf[19 - j] == '.' || buf[19 - j] == '#')
 				map[i++] = (buf[19 - j] == '.') ? 0 : 1;
 			else if(buf[19 -j] != '\n')
-				break;
-			if (j != -1)
-			break ;
+				return (1);
 		if ((k = malloc(sizeof(int) * 8)))
 			ft_elempush_back(elem, cutkey(key(map,k)));
 		if (!(read(fd, buf, 1)))
@@ -127,30 +127,31 @@ int	checkvalid_input(int fd, int *map, t_elem **elem, char *s)
 		if (buf[0] != '\n')
 			return(1) ;
 	}
+	return (0);
 }
 
 int	main(int argc, char **argv)
 {
 	int *map;
-	int fd;
 	t_elem *elem;
-	int b;
+//	int b;
 
+	printf("@@1@@\n");
 	if (argc != 2)
 		return (0);
 	if (!(map = malloc(sizeof(int) * 16)))
 		return (0);
 	elem = 0;
-	if (checkvalid_input(fd, map, &elem, argv[1]))
+	if (checkvalid_input(map, &elem, argv[1]))
 		printf ("§§§§§§§		ERROR		§§§§§§§\n");
-	t_elem *tmp = elem;
-	while (tmp)
-	{
-		b = 0;
-		while (b < 8)
-			printf ("%i %i	", tmp->pos[b++], tmp->pos[b++]);
-		printf("\n");
-		tmp = tmp->next;
-	}
+	// t_elem *tmp = elem;
+	// while (tmp)
+	// {
+	// 	b = 0;
+	// 	while (b < 8)
+	// 		printf ("%i %i	", tmp->pos[b++], tmp->pos[b++]);
+	// 	printf("\n");
+	// 	tmp = tmp->next;
+	// }
 	return (0);
 }
