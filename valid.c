@@ -6,7 +6,7 @@
 /*   By: tkuhar <tkuhar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/02 17:28:29 by tkuhar            #+#    #+#             */
-/*   Updated: 2018/04/04 16:27:16 by tkuhar           ###   ########.fr       */
+/*   Updated: 2018/04/04 18:35:31 by tkuhar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,7 @@ t_elem	*ft_elemnew(int *content)
 		return (0);
 	i = -1;
 	while (++i < 8) 
-		new->pos[i] = content[i];
+		new->pos = content;
 	new->next = 0;
 	return (new);
 }
@@ -51,33 +51,35 @@ int	ft_elempush_back(t_elem **begin_list, int *content)
 	return (0);
 }
 
-int	*cutkey(int *k)
+int	*key(int *map)
 {
 	int minc;
 	int minr;
 	int i;
+	int *k;
+	int j;
 
-	if (!k)
-		return(0);
-	i = 8;
+	if (!map || !(k = malloc(8*4)))
+		return (0);
+	j = 16;
 	minr = 3;
 	minc = 3;
-	while(i--)
-		if (i % 2)
-			minr = minr > k[i] ? k[i] : minr;
-		else
+	i = 0;
+	while(j--)
+		if (map[15 - j])
+		{
+			k[i] = (15 - j) % 4;
 			minc = minc > k[i] ? k[i] : minc;
-	i = 8;
+			k[++i] = (15 - j) / 4;
+			minr = minr > k[i] ? k[i] : minr;
+			i++;
+		}
 	while (i--)
-		if (i % 2)
-			k[i] = k[i] - minr;
-		else
-			k[i] = k[i] - minc;
+		k[i] = (i % 2) ? k[i] - minr : k[i] - minc;
 	return (k);
 }
 
-
-int *key(int *map, int *k)
+int *checkmap(int *map)
 {
 	int i;
 	int b;
@@ -94,43 +96,39 @@ int *key(int *map, int *k)
 		map[i] += (i + 4 < 16 && map[i] > 0) ? map[i + 4] : 0;
 		map[i] += (i + 1 < 16 && map[i] > 0) ? map[i + 1] : 0;
 		max = map[i] > max ? map[i] : max;
+		if (map[i] == 1)
+			return (0);
 	}
 	if (b != 4 || max < 3)
 		return (0);
-	while(i--)
-		if (map[15 - i])
-		{
-			*(k++) = (15 - i) % 4; 
-			*(k++) = (15 - i) / 4;
-		}
-	return (k - 8);
+	return (map);
 }
+
 
 int	checkvalid_input(int *map, t_elem **elem, char *s)
 {
 	char buf[20];
-	int i;
 	int j;
-	int k[8];
+	int *k;
 	int fd;
+	int i;
 
 	fd = open(s, O_RDONLY);
-	while (read (fd, buf, 20) == 20)
+	while ( (i = read (fd, buf, 20)) == 20)
 	{
-		i = 0;
 		j = 20;
 		while(buf[4] == '\n' && buf[9] == '\n' && buf[14] == '\n' &&
 			buf[19] == '\n' && j--)
 			if (buf[19 - j] == '.' || buf[19 - j] == '#')
-				map[i++] = (buf[19 - j] == '.') ? 0 : 1;
-			else if(buf[19 -j] != '\n')
+				*map++ = (buf[19 - j] == '.') ? 0 : 1;
+			else if(buf[19 - j] != '\n')
 				return (1);
-		if (ft_elempush_back(elem, cutkey(key(map,k))))
+		if (ft_elempush_back(elem, key(checkmap(map = map - 16))))
 				return (1);
 		if (read(fd, buf, 1) && buf[0] != '\n')
 			return (1);
 	}
-	if (!(read(fd, buf, 1)))
+	if (!(read(fd, buf, 1)) && !(i % 20))
 		return (0);
 	return (1);
 }
@@ -148,14 +146,17 @@ int	main(int argc, char **argv)
 	elem = 0;
 	if (checkvalid_input(map, &elem, argv[1]))
 		printf ("§§§§§§§		ERROR		§§§§§§§\n");
-	t_elem *tmp = elem;
-	while (tmp)
+	else
 	{
-		b = 0;
-		while (b < 8)
-			printf ("%i %i	", tmp->pos[b++], tmp->pos[b++]);
-		printf("\n");
-		tmp = tmp->next;
+		t_elem *tmp = elem;
+		while (tmp)
+		{
+			b = 0;
+			while (b < 8)
+				printf ("%i %i	", tmp->pos[b++], tmp->pos[b++]);
+			printf("\n");
+			tmp = tmp->next;
+		}
 	}
 	return (0);
 }
