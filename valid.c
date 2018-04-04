@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   valid.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tkuhar <marvin@42.fr>                      +#+  +:+       +#+        */
+/*   By: tkuhar <tkuhar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/02 17:28:29 by tkuhar            #+#    #+#             */
-/*   Updated: 2018/04/04 13:29:50 by tkuhar           ###   ########.fr       */
+/*   Updated: 2018/04/04 16:27:16 by tkuhar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,30 +21,34 @@
 t_elem	*ft_elemnew(int *content)
 {
 	t_elem *new;
+	int i;
 
 	if (!(new = malloc(sizeof(t_elem))))
 		return (0);
-	new->pos = content;
+	i = -1;
+	while (++i < 8) 
+		new->pos[i] = content[i];
 	new->next = 0;
-	new->prev = 0;
 	return (new);
 }
 
-void	ft_elempush_back(t_elem **begin_list, int *content)
+int	ft_elempush_back(t_elem **begin_list, int *content)
 {
 	t_elem	*tmp;
 
+	if (content == 0)
+		return (1);
 	if (!*begin_list)
 	{
 		*begin_list = ft_elemnew(content);
-		return ;
+		return (0);
 	}
 	if (!(tmp = *begin_list))
-		return ;
+		return (1);
 	while (tmp && tmp->next)
 		tmp = tmp->next;
 	tmp->next = ft_elemnew(content);
-	tmp->next->prev = tmp;
+	return (0);
 }
 
 int	*cutkey(int *k)
@@ -53,6 +57,8 @@ int	*cutkey(int *k)
 	int minr;
 	int i;
 
+	if (!k)
+		return(0);
 	i = 8;
 	minr = 3;
 	minc = 3;
@@ -105,10 +111,9 @@ int	checkvalid_input(int *map, t_elem **elem, char *s)
 	char buf[20];
 	int i;
 	int j;
-	int *k;
+	int k[8];
 	int fd;
 
-	printf("@@@@\n");
 	fd = open(s, O_RDONLY);
 	while (read (fd, buf, 20) == 20)
 	{
@@ -120,23 +125,22 @@ int	checkvalid_input(int *map, t_elem **elem, char *s)
 				map[i++] = (buf[19 - j] == '.') ? 0 : 1;
 			else if(buf[19 -j] != '\n')
 				return (1);
-		if ((k = malloc(sizeof(int) * 8)))
-			ft_elempush_back(elem, cutkey(key(map,k)));
-		if (!(read(fd, buf, 1)))
-			return (0);
-		if (buf[0] != '\n')
-			return(1) ;
+		if (ft_elempush_back(elem, cutkey(key(map,k))))
+				return (1);
+		if (read(fd, buf, 1) && buf[0] != '\n')
+			return (1);
 	}
-	return (0);
+	if (!(read(fd, buf, 1)))
+		return (0);
+	return (1);
 }
 
 int	main(int argc, char **argv)
 {
 	int *map;
 	t_elem *elem;
-//	int b;
+	int b;
 
-	printf("@@1@@\n");
 	if (argc != 2)
 		return (0);
 	if (!(map = malloc(sizeof(int) * 16)))
@@ -144,14 +148,14 @@ int	main(int argc, char **argv)
 	elem = 0;
 	if (checkvalid_input(map, &elem, argv[1]))
 		printf ("§§§§§§§		ERROR		§§§§§§§\n");
-	// t_elem *tmp = elem;
-	// while (tmp)
-	// {
-	// 	b = 0;
-	// 	while (b < 8)
-	// 		printf ("%i %i	", tmp->pos[b++], tmp->pos[b++]);
-	// 	printf("\n");
-	// 	tmp = tmp->next;
-	// }
+	t_elem *tmp = elem;
+	while (tmp)
+	{
+		b = 0;
+		while (b < 8)
+			printf ("%i %i	", tmp->pos[b++], tmp->pos[b++]);
+		printf("\n");
+		tmp = tmp->next;
+	}
 	return (0);
 }
