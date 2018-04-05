@@ -3,35 +3,41 @@
 /*                                                        :::      ::::::::   */
 /*   valid.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tkuhar <tkuhar@student.42.fr>              +#+  +:+       +#+        */
+/*   By: tkuhar <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/02 17:28:29 by tkuhar            #+#    #+#             */
-/*   Updated: 2018/04/04 21:55:42 by tkuhar           ###   ########.fr       */
+/*   Updated: 2018/04/05 20:40:56 by tkuhar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "valid.h"
 
+int	min_sqrsize(t_elem *l)
+{
+	int	elems;
+	int	min;
 
-//############################################################
-// УЖс, куча говнокода, переписал очень почти всё :)
-//
-//	не отличаю в конце файла 
-//	 ...#$
-//	 ...#$
-//	 ...#$
-//	 ...#$
-//	 от 
-//	 ...#$
-//	 ...#$
-//	 ...#$
-//	 ...#$
-//	 $
-// хз как починить не ломая всё.
-// спровоцировать segmentation fault не получилось
-//###########################################################
-#include <stdio.h>
-//###########################################################
+	min = 2;
+	elems = 0;
+	while (l && ++elems)
+		l = l->next;
+	while (min * min < elems * 4)
+		min++;
+	return (min);
+}
+
+void	*ft_memset(void *b, int c, size_t n)
+{
+	void *temp;
+
+	temp = b;
+	while (n-- > 0)
+	{
+		*(unsigned char *)b = (unsigned char)c;
+		b++;
+	}
+	return (temp);
+}
 
 void	ft_elemdel(t_elem **alst)
 {
@@ -64,7 +70,7 @@ t_elem	*ft_elemnew(int *content)
 	return (new);
 }
 
-int	ft_elempush_back(t_elem **begin_list, int *content)
+int	push(t_elem **begin_list, int *content)
 {
 	t_elem	*tmp;
 
@@ -111,7 +117,7 @@ int	*key(int *map)
 	return (k);
 }
 
-int	*checkmap(int *map)
+int	*mp(int *map)
 {
 	int i;
 	int b;
@@ -136,16 +142,15 @@ int	*checkmap(int *map)
 	return (map);
 }
 
-int	checkvalid_input(int *map, t_elem **elem, char *s)
+int	chk_input(int *map, t_elem **elem, char *s)
 {
 	char	buf[20];
 	int		j;
-	int		*k;
 	int		fd;
 	int		i;
 
 	fd = open(s, O_RDONLY);
-	while ( (i = read(fd, buf, 20)) == 20)
+	while ((i = read(fd, buf, 20)) == 20)
 	{
 		j = 20;
 		while (buf[4] == '\n' && buf[9] == '\n' && buf[14] == '\n' &&
@@ -154,15 +159,19 @@ int	checkvalid_input(int *map, t_elem **elem, char *s)
 				*map++ = (buf[19 - j] == '.') ? 0 : 1;
 			else if (buf[19 - j] != '\n')
 				return (1);
-		if (ft_elempush_back(elem, key(checkmap(map = map - 16))))
+		if (push(elem, key(mp(map -= 16))) || (read(fd, buf, 1) && *buf != 10))
 				return (1);
-		if (read(fd, buf, 1) && buf[0] != '\n')
-			return (1);
+		if (*buf == 10)
+			ft_memset(buf, 0, 20);
 	}
-	if (!(read(fd, buf, 1)) && !(i % 20))
+	if (!(read(fd, buf, 1)) && i == 0 && *buf != 0)
 		return (0);
 	return (1);
 }
+
+/*###########################################################*/
+#include <stdio.h>
+/*###########################################################*/
 
 int	main(int argc, char **argv)
 {
@@ -171,18 +180,22 @@ int	main(int argc, char **argv)
 	int		b;
 
 	if (argc != 2 )
-		return (0);
-	if (!(map = malloc(sizeof(int) * 16)))
-		return (0);
-	elem = 0;
-	if (checkvalid_input(map, &elem, argv[1]))
 	{
-		printf ("§§§§§§§		MAP_ERROR		§§§§§§§\n");
-		ft_elemdel(&elem);
+		write(1, "usage:	source_file target_file\n", 32);
+		exit (0);
 	}
-		//////////////////////print/////////////////////////
-	else
+	elem = 0;
+	if (!(map = malloc(sizeof(int) * 16)) || chk_input(map, &elem, argv[1]))
 	{
+		write(1, "error\n", 7);
+		ft_elemdel(&elem);
+		exit(0);
+	}
+	min_sqrsize(elem);
+		//////////////////////print/////////////////////////
+	
+	{
+		printf("±±±±±%i±±±±±\n",min_sqrsize(elem));
 		t_elem *tmp = elem;
 		if (!tmp)
 			printf("#######		gg emptyfile	#######\n");
